@@ -2,9 +2,14 @@
 
 %{
 
-// wx scanner (including the wx.l flex source and generated lex.yy.c source file)
+// wx scanner (including the wx.l flex source and generated wx.c source file)
 // Copyright 2014. Christopher Simpkins
 // MIT License
+
+#define WX_VERSION ("0.1.0")
+#define WX_DEVELOPER ("Christopher Simpkins")
+#define WX_YEAR ("2014")
+#define WX_LICENSE ("MIT License")
 
 #include <stdbool.h> // true and false values, bool type
 #include <ctype.h>   // isprint() function
@@ -19,6 +24,9 @@ bool word_output = false;    // include word count output flag
 bool char_output = false;    // include character count output flag
 bool switch_present = false; // user included a switch flag, used to display all when not present
 bool pipe_output = false;    // user indicated output to be piped to another executable, remove the non-count text
+
+void print_help();
+void print_version();
 %}
 
 %%
@@ -32,11 +40,14 @@ bool pipe_output = false;    // user indicated output to be piped to another exe
 int main(int argc, char **argv) {
 	int i,c;
 
-	while ((c = getopt (argc, argv, "clprw")) != -1){
+	while ((c = getopt (argc, argv, "chlprvw")) != -1){
 		switch (c) {
 			case 'c':
 				char_output = true;
 				switch_present = true;
+				break;
+			case 'h':
+				print_help();
 				break;
 			case 'l':
 				line_output = true;
@@ -47,6 +58,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'r':
 				row_output = true;
+				break;
+			case 'v':
+				print_version();
 				break;
 			case 'w':
 				word_output = true;
@@ -143,4 +157,25 @@ int main(int argc, char **argv) {
 		lines = 0;
 	}
 
+}
+
+// Functions
+
+void print_help() {
+	printf("\nwx\n");
+	printf("---\n");
+	printf("Description: Character, word, and line counts.\n\n");
+	printf("Usage: wx [-clprw] <file-path>\n\n");
+	printf("Options:\n");
+	printf("\t-c : Calculate character count\n");
+	printf("\t-l : Calculate line count\n");
+	printf("\t-p : Only print value to standard out.  Use with -c, -l, or -w flag.\n");
+	printf("\t-r : Print data to standard output in a compressed 'row' view\n");
+	printf("\t-w : Calculate word count\n\n");
+	exit(0);
+}
+
+void print_version(){
+	printf("wx v%s\n", WX_VERSION);
+	exit(0);
 }
