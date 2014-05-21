@@ -1,7 +1,13 @@
 %option noyywrap nodefault
 
 %{
-#include <stdbool.h>
+
+// wx scanner (including the wx.l flex source and generated lex.yy.c source file)
+// Copyright 2014. Christopher Simpkins
+// MIT License
+
+#include <stdbool.h> // true and false values, bool type
+#include <ctype.h>   // isprint() function
 
 unsigned long chars = 0;
 unsigned long words = 0;
@@ -93,11 +99,12 @@ int main(int argc, char **argv) {
 				printf("C: %lu", chars);
 			printf("\n");
 		}
-		else { // long format
+		else { // print output - long output format
+			// `pipe_output` flag is checked to determine whether to remove additional print text formatting for piped data to other executables
 			if (!pipe_output){
 				printf("%s\n", argv[i]);
 			}
-			if (line_output)
+			if (line_output) {
 				if (pipe_output){
 					printf("%lu", lines);
 					break;
@@ -105,7 +112,8 @@ int main(int argc, char **argv) {
 				else{
 					printf("  Lines: %lu\n", lines);
 				}
-			if (word_output)
+			}
+			if (word_output) {
 				if (pipe_output){
 					printf("%lu", words);
 					break;
@@ -113,7 +121,8 @@ int main(int argc, char **argv) {
 				else{
 					printf("  Words: %lu\n", words);
 				}
-			if (char_output)
+			}
+			if (char_output) {
 				if (pipe_output){
 					printf("%lu", chars);
 					break;
@@ -121,12 +130,14 @@ int main(int argc, char **argv) {
 				else{
 					printf("  Chars: %lu\n", chars);
 				}
+			}
 			if (!pipe_output){
 				printf("\n");
 			}
 
 		}
 
+		// reset the single file count values after data pushed to standard output for the file
 		chars = 0;
 		words = 0;
 		lines = 0;

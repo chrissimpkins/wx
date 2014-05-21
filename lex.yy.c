@@ -450,7 +450,13 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "wx.l"
 #line 4 "wx.l"
-#include <stdbool.h>
+
+// wx scanner (including the wx.l flex source and generated lex.yy.c source file)
+// Copyright 2014. Christopher Simpkins
+// MIT License
+
+#include <stdbool.h> // true and false values, bool type
+#include <ctype.h>   // isprint() function
 
 unsigned long chars = 0;
 unsigned long words = 0;
@@ -462,7 +468,7 @@ bool word_output = false;    // include word count output flag
 bool char_output = false;    // include character count output flag
 bool switch_present = false; // user included a switch flag, used to display all when not present
 bool pipe_output = false;    // user indicated output to be piped to another executable, remove the non-count text
-#line 466 "lex.yy.c"
+#line 472 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -644,10 +650,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 18 "wx.l"
+#line 24 "wx.l"
 
 
-#line 651 "lex.yy.c"
+#line 657 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -732,26 +738,26 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 20 "wx.l"
+#line 26 "wx.l"
 {	words++; chars += strlen(yytext); }   // '
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 21 "wx.l"
+#line 27 "wx.l"
 { chars++; lines++; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 22 "wx.l"
+#line 28 "wx.l"
 { chars++; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 24 "wx.l"
+#line 30 "wx.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 755 "lex.yy.c"
+#line 761 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1748,7 +1754,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 24 "wx.l"
+#line 30 "wx.l"
 
 
 
@@ -1822,11 +1828,12 @@ int main(int argc, char **argv) {
 				printf("C: %lu", chars);
 			printf("\n");
 		}
-		else { // long format
+		else { // print output - long output format
+			// `pipe_output` flag is checked to determine whether to remove additional print text formatting for piped data to other executables
 			if (!pipe_output){
 				printf("%s\n", argv[i]);
 			}
-			if (line_output)
+			if (line_output) {
 				if (pipe_output){
 					printf("%lu", lines);
 					break;
@@ -1834,7 +1841,8 @@ int main(int argc, char **argv) {
 				else{
 					printf("  Lines: %lu\n", lines);
 				}
-			if (word_output)
+			}
+			if (word_output) {
 				if (pipe_output){
 					printf("%lu", words);
 					break;
@@ -1842,7 +1850,8 @@ int main(int argc, char **argv) {
 				else{
 					printf("  Words: %lu\n", words);
 				}
-			if (char_output)
+			}
+			if (char_output) {
 				if (pipe_output){
 					printf("%lu", chars);
 					break;
@@ -1850,12 +1859,14 @@ int main(int argc, char **argv) {
 				else{
 					printf("  Chars: %lu\n", chars);
 				}
+			}
 			if (!pipe_output){
 				printf("\n");
 			}
 
 		}
 
+		// reset the single file count values after data pushed to standard output for the file
 		chars = 0;
 		words = 0;
 		lines = 0;
