@@ -448,20 +448,21 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "flextest.l"
-#line 4 "flextest.l"
+#line 1 "wx.l"
+#line 4 "wx.l"
 #include <stdbool.h>
 
-int chars = 0;
-int words = 0;
-int lines = 0;
+unsigned long chars = 0;
+unsigned long words = 0;
+unsigned long lines = 0;
 
-bool row_output = false;
-bool line_output = false;
-bool word_output = false;
-bool char_output = false;
-bool switch_present = false;
-#line 465 "lex.yy.c"
+bool row_output = false;     // single row output format flag
+bool line_output = false;    // include line count output flag
+bool word_output = false;    // include word count output flag
+bool char_output = false;    // include character count output flag
+bool switch_present = false; // user included a switch flag, used to display all when not present
+bool pipe_output = false;    // user indicated output to be piped to another executable, remove the non-count text
+#line 466 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -643,10 +644,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 17 "flextest.l"
+#line 18 "wx.l"
 
 
-#line 650 "lex.yy.c"
+#line 651 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -731,26 +732,26 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 19 "flextest.l"
+#line 20 "wx.l"
 {	words++; chars += strlen(yytext); }   // '
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 20 "flextest.l"
+#line 21 "wx.l"
 { chars++; lines++; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 21 "flextest.l"
+#line 22 "wx.l"
 { chars++; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 23 "flextest.l"
+#line 24 "wx.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 754 "lex.yy.c"
+#line 755 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1747,14 +1748,14 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 23 "flextest.l"
+#line 24 "wx.l"
 
 
 
 int main(int argc, char **argv) {
 	int i,c;
 
-	while ((c = getopt (argc, argv, "clrw")) != -1){
+	while ((c = getopt (argc, argv, "clprw")) != -1){
 		switch (c) {
 			case 'c':
 				char_output = true;
@@ -1763,6 +1764,9 @@ int main(int argc, char **argv) {
 			case 'l':
 				line_output = true;
 				switch_present = true;
+				break;
+			case 'p':
+				pipe_output = true;
 				break;
 			case 'r':
 				row_output = true;
@@ -1811,22 +1815,45 @@ int main(int argc, char **argv) {
 		if (row_output) {
 			printf("%s\t", argv[i]);
 			if (line_output)
-				printf("L: %d\t\t", lines);
+				printf("L: %lu\t\t", lines);
 			if (word_output)
-				printf("W: %d\t\t", words);
+				printf("W: %lu\t\t", words);
 			if (char_output)
-				printf("C: %d", chars);
+				printf("C: %lu", chars);
 			printf("\n");
 		}
 		else { // long format
-			printf("%s\n", argv[i]);
+			if (!pipe_output){
+				printf("%s\n", argv[i]);
+			}
 			if (line_output)
-				printf("  Lines: %d\n", lines);
+				if (pipe_output){
+					printf("%lu", lines);
+					break;
+				}
+				else{
+					printf("  Lines: %lu\n", lines);
+				}
 			if (word_output)
-				printf("  Words: %d\n", words);
+				if (pipe_output){
+					printf("%lu", words);
+					break;
+				}
+				else{
+					printf("  Words: %lu\n", words);
+				}
 			if (char_output)
-				printf("  Chars: %d\n", chars);
-			printf("\n");
+				if (pipe_output){
+					printf("%lu", chars);
+					break;
+				}
+				else{
+					printf("  Chars: %lu\n", chars);
+				}
+			if (!pipe_output){
+				printf("\n");
+			}
+
 		}
 
 		chars = 0;
@@ -1835,3 +1862,4 @@ int main(int argc, char **argv) {
 	}
 
 }
+

@@ -3,15 +3,16 @@
 %{
 #include <stdbool.h>
 
-int chars = 0;
-int words = 0;
-int lines = 0;
+unsigned long chars = 0;
+unsigned long words = 0;
+unsigned long lines = 0;
 
-bool row_output = false;
-bool line_output = false;
-bool word_output = false;
-bool char_output = false;
-bool switch_present = false;
+bool row_output = false;     // single row output format flag
+bool line_output = false;    // include line count output flag
+bool word_output = false;    // include word count output flag
+bool char_output = false;    // include character count output flag
+bool switch_present = false; // user included a switch flag, used to display all when not present
+bool pipe_output = false;    // user indicated output to be piped to another executable, remove the non-count text
 %}
 
 %%
@@ -25,7 +26,7 @@ bool switch_present = false;
 int main(int argc, char **argv) {
 	int i,c;
 
-	while ((c = getopt (argc, argv, "clrw")) != -1){
+	while ((c = getopt (argc, argv, "clprw")) != -1){
 		switch (c) {
 			case 'c':
 				char_output = true;
@@ -34,6 +35,9 @@ int main(int argc, char **argv) {
 			case 'l':
 				line_output = true;
 				switch_present = true;
+				break;
+			case 'p':
+				pipe_output = true;
 				break;
 			case 'r':
 				row_output = true;
@@ -82,22 +86,45 @@ int main(int argc, char **argv) {
 		if (row_output) {
 			printf("%s\t", argv[i]);
 			if (line_output)
-				printf("L: %d\t\t", lines);
+				printf("L: %lu\t\t", lines);
 			if (word_output)
-				printf("W: %d\t\t", words);
+				printf("W: %lu\t\t", words);
 			if (char_output)
-				printf("C: %d", chars);
+				printf("C: %lu", chars);
 			printf("\n");
 		}
 		else { // long format
-			printf("%s\n", argv[i]);
+			if (!pipe_output){
+				printf("%s\n", argv[i]);
+			}
 			if (line_output)
-				printf("  Lines: %d\n", lines);
+				if (pipe_output){
+					printf("%lu", lines);
+					break;
+				}
+				else{
+					printf("  Lines: %lu\n", lines);
+				}
 			if (word_output)
-				printf("  Words: %d\n", words);
+				if (pipe_output){
+					printf("%lu", words);
+					break;
+				}
+				else{
+					printf("  Words: %lu\n", words);
+				}
 			if (char_output)
-				printf("  Chars: %d\n", chars);
-			printf("\n");
+				if (pipe_output){
+					printf("%lu", chars);
+					break;
+				}
+				else{
+					printf("  Chars: %lu\n", chars);
+				}
+			if (!pipe_output){
+				printf("\n");
+			}
+
 		}
 
 		chars = 0;
